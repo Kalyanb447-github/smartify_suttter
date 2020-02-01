@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
@@ -20,14 +21,14 @@ class ButtonDashboard extends StatefulWidget {
 
 List<CustomPopupMenu> choices = <CustomPopupMenu>[
   CustomPopupMenu(title: 'logout', icon: Icons.home),
-  CustomPopupMenu(title: 'Bookmarks', icon: Icons.bookmark),
+  CustomPopupMenu(title: 'Import', icon: Icons.bookmark),
   CustomPopupMenu(title: 'Settings', icon: Icons.settings),
 ];
 
 class _ButtonDashboardState extends State<ButtonDashboard> {
   //static String  mainFileLocation;
   // _ButtonDashboardState({String mainFileLocation});
-
+final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   File ourTempFile;
 
   String messageToPublish;
@@ -39,11 +40,13 @@ class _ButtonDashboardState extends State<ButtonDashboard> {
   List<String> listOfButtonStatusFromShared = [];
   CustomPopupMenu _selectedChoices = choices[0];
 
-  List<String> switchCommendList = ['', '', '', '','',''];
+  List<String> switchCommendList = ['', '', '', '', '', ''];
 
   String buttonOneValue;
   String text;
-
+  File ourMainFile;
+ 
+    String mainFileLocation='';
   String buttonValue1;
   String buttonValue2;
   String buttonValue3;
@@ -96,16 +99,49 @@ class _ButtonDashboardState extends State<ButtonDashboard> {
         Directory('${_appDocDir.path}/$folderName/$fileName');
     if (await File(_appFile.path).exists()) {
       ourTempFile = File(_appFile.path);
-      text = await ourTempFile.readAsString();
+      //text = await ourTempFile.readAsString();
       switchCommendList = await ourTempFile.readAsLines();
+      setState(() {
+        location = switchCommendList[0];
+        unique_number = switchCommendList[1];
+      });
     }
   }
 
   // CustomPopupMenu _selectedChoices = choices[0];
 
-  sendMqttpRequest() {}
+ 
+  void processTxtReceive(String temptxtReceive) {
+    if (temptxtReceive.isNotEmpty) {
+      setState(() {
+          List<String> tempListOfButtonStatus = [];
+          tempListOfButtonStatus = temptxtReceive.split(',');
+          setFinalStatus(tempListOfButtonStatus);
+        
+      });
+    }
+  }
+    setFinalStatus(List<String> listOfButtonStatus) async {  
+      createFileFunction(
+        filename: fileName,
+        fileData: listOfButtonStatus[0].toString()+'\n'+
+         listOfButtonStatus[1].toString()+'\n'+
+          listOfButtonStatus[2].toString()+'\n'+
+           listOfButtonStatus[3].toString()+'\n'+
+            listOfButtonStatus[4].toString()+'\n'+
+                        listOfButtonStatus[5].toString()
 
-  void _select(CustomPopupMenu choice) {
+      );
+  }
+    createFileFunction({String filename, String fileData}) async {
+     final Directory _appDocDir = await getExternalStorageDirectory();
+    ourMainFile = File("${_appDocDir.path}/$folderName/$filename");
+    mainFileLocation=ourMainFile.path;
+    ourMainFile.writeAsString(fileData);
+    // text = await ourMainFile.readAsString();
+  }
+
+  void _select(CustomPopupMenu choice) async{
     setState(() {
       _selectedChoices = choice;
     });
@@ -113,12 +149,24 @@ class _ButtonDashboardState extends State<ButtonDashboard> {
       _disconnect();
       // _removeSharedValue();
     }
-      if (_selectedChoices.title == 'Settings') {
+       if (_selectedChoices.title == 'Import') {
+    //  Future<ClipboardData>  data =  Clipboard.getData('text/plain');
+    //      Future<ClipboardData>  data =  Clipboard.getData('text/plain');
+          String data =await getClipBoardData();
+          processTxtReceive(data);
+          
+              
+    
+    
+      // _removeSharedValue();
+    }
+    if (_selectedChoices.title == 'Settings') {
       Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => SettingsPage(switchCommendList: switchCommendList),
-      ),
-    );
+        MaterialPageRoute(
+          builder: (context) =>
+              SettingsPage(switchCommendList: switchCommendList),
+        ),
+      );
       // _removeSharedValue();
     }
   }
@@ -239,7 +287,8 @@ class _ButtonDashboardState extends State<ButtonDashboard> {
     // builder.addString('[5586826]alloff');
     //   messageToPublish = "[5586826]5-0";
     // messageToPublish = "[5586826]${buttonNo}-${buttonVale}";
-    messageToPublish = "[${unique_number}]RC-${all}";
+    messageToPublish = "[${unique_number}]RF-${all}";
+
     builder.addString(messageToPublish);
     // builder.addString('[5586826]1-1');
     client.publishMessage(
@@ -249,42 +298,34 @@ class _ButtonDashboardState extends State<ButtonDashboard> {
       builder.payload,
       retain: _retainValue,
     );
-    // Navigator.pop(context);
+
+    // showInSnackBar(messageToPublish);
+     showInSnackBar('Message Sent');
+
   }
+  void showInSnackBar(String value) {
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(
+      backgroundColor: Colors.transparent,
+      duration: Duration(seconds: 1),
+      content: new Text(value)));
+}
 
-  sendButtonValue({int buttonNo, int buttonValue}) async {
-    switch (buttonNo) {
-      case 1:
-        {
-          _sendMessage(buttonNo: buttonNo, buttonVale: buttonValue);
-        }
-        // do something
-        break;
-      case 2:
-        {
-          _sendMessage(buttonNo: buttonNo, buttonVale: buttonValue);
-        }
-        break;
-      case 3:
-        {
-          _sendMessage(buttonNo: buttonNo, buttonVale: buttonValue);
-        }
-        break;
-      case 4:
-        {
-          _sendMessage(buttonNo: buttonNo, buttonVale: buttonValue);
-        }
+// Future<String> getRequestValue()async{
+//          return await messageToPublish;
+// }
+  String getRequestValue = '';
+Future<String> getClipBoardData() async {
+  ClipboardData data = await Clipboard.getData('text/plain');
+   return data.text;
+}
 
-      // do something else
-
-    }
-  }
-
+  bool buttonVisibility=true;
   @override
   Widget build(BuildContext context) {
     //  final width = MediaQuery.of(context).size.width;
     //  final height = MediaQuery.of(context).size.height;
     return Scaffold(
+       key: _scaffoldKey,
       body: Container(
         // color: Color(0xFF1C6BB0),
         decoration: BoxDecoration(
@@ -304,7 +345,7 @@ class _ButtonDashboardState extends State<ButtonDashboard> {
             AppBar(
               elevation: 0,
               title: Text(
-                'Smartify',
+                'Smartify Shutter',
                 style: TextStyle(
                   fontSize: 24,
                 ),
@@ -352,6 +393,7 @@ class _ButtonDashboardState extends State<ButtonDashboard> {
             ),
 
             Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -364,7 +406,7 @@ class _ButtonDashboardState extends State<ButtonDashboard> {
                           style: TextStyle(fontSize: 24, color: Colors.white),
                         ),
                         Text(
-                         // '$unique_number',
+                          // '$unique_number',
                           switchCommendList[1].toString(),
                           style: TextStyle(fontSize: 14, color: Colors.white),
                         )
@@ -375,44 +417,53 @@ class _ButtonDashboardState extends State<ButtonDashboard> {
                 SizedBox(
                   height: 50,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    InkWell(
-                      onTap: () {
-                        if (switchCommendList[2] != null ||
-                            switchCommendList[2] != '') {
-                          _sendMessage(buttonNo: 1, all: switchCommendList[2]);
-                        }
-                      },
-                      child: Cardelement(
-                        image: 'assets/available.png',
-                        text: 'Open',
-                        //  requestValue: listOfButtonStatusFromShared[0],
+                Visibility(
+                  visible: buttonVisibility,
+                                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      InkWell(
+                  
+                        onTap: () {
+                          if (switchCommendList[2] != null ||
+                              switchCommendList[2] != '') {
+                            _sendMessage(buttonNo: 1, all: switchCommendList[2]);
+                          }
+                        },
+                        child: Cardelement(
+                          icon: Icons.open_in_browser,
+                          image: 'assets/available.png',
+                          text: 'Open',
+                          //  requestValue: listOfButtonStatusFromShared[0],
+                        ),
                       ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        if (switchCommendList[3] != null ||
-                            switchCommendList[3] != '') {
-                          _sendMessage(buttonNo: 2, all: switchCommendList[3]);
-                        }
-                      },
-                      child: Cardelement(
-                        image: 'assets/available.png',
-                        text: 'close',
-                        //   requestValue: listOfButtonStatusFromShared[1],
+                      InkWell(
+                        splashColor: Colors.greenAccent,
+                        hoverColor: Colors.greenAccent,
+                        onTap: () {
+                          if (switchCommendList[3] != null ||
+                              switchCommendList[3] != '') {
+                            _sendMessage(buttonNo: 2, all: switchCommendList[3]);
+                          }
+                        },
+                        child: Cardelement(
+                          icon: Icons.arrow_downward,
+                          image: 'assets/available.png',
+                          text: 'Close',
+                          //   requestValue: listOfButtonStatusFromShared[1],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 SizedBox(
                   height: 10,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     InkWell(
+                      
                       onTap: () {
                         //       sendButtonValue(
                         //    buttonNo: 1,
@@ -421,31 +472,49 @@ class _ButtonDashboardState extends State<ButtonDashboard> {
                         if (switchCommendList[4] != null ||
                             switchCommendList[4] != '') {
                           _sendMessage(buttonNo: 3, all: switchCommendList[4]);
+                            setState(() {
+                                                     buttonVisibility=true;
+
+                         });
                         }
                       },
                       child: Cardelement(
+                         icon: buttonVisibility ==false ?Icons.lock_open :Icons.stop,
                         image: 'assets/available.png',
-                        text: 'stop',
+                        text:buttonVisibility ==false ?'Unlock': 'Stop',
                         //  requestValue: listOfButtonStatusFromShared[2],
                       ),
                     ),
-                    InkWell(
-                      onTap: () {
-                             if (switchCommendList[5] != null ||
-                            switchCommendList[5] != '') {
-                          _sendMessage(buttonNo: 4, all: switchCommendList[5]);
-                        }
-                      },
-                      child: Cardelement(
-                        image: 'assets/available.png',
-                        text: 'Lock',
-                        // requestValue: listOfButtonStatusFromShared[3],
+                     SizedBox(
+                  width: 20,
+                ),
+                    Visibility(
+                      visible: buttonVisibility,
+                                          child: InkWell(
+                        onTap: () {
+                          if (switchCommendList[5] != null ||
+                              switchCommendList[5] != '') {
+                            _sendMessage(buttonNo: 4, all: switchCommendList[5]);
+                           setState(() {
+                                                       buttonVisibility=false;
+
+                           });
+                          }
+                        },
+                        child: Cardelement(
+                            icon: Icons.lock,
+                          image: 'assets/available.png',
+                          text: 'Lock',
+                          // requestValue: listOfButtonStatusFromShared[3],
+                        ),
                       ),
                     ),
                   ],
                 ),
               ],
-            )
+            ),
+
+        
           ],
         ),
       ),
@@ -454,6 +523,7 @@ class _ButtonDashboardState extends State<ButtonDashboard> {
 }
 
 class Cardelement extends StatefulWidget {
+   IconData icon;
   String text;
   String image;
   Function function;
@@ -467,6 +537,7 @@ class Cardelement extends StatefulWidget {
     this.status,
     this.requestValue,
     this.buttonNo,
+     this.icon
   });
 
   @override
@@ -506,11 +577,12 @@ class _CardelementState extends State<Cardelement> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Image(
-                    height: 60,
-                    width: 60,
-                    image: AssetImage(widget.image),
-                  ),
+                  // Image(
+                  //   height: 60,
+                  //   width: 60,
+                  //   image: AssetImage(widget.image),
+                  // ),
+                  Icon(widget.icon,size: 50,color: Colors.white,),
                   SizedBox(
                     height: 10,
                   ),

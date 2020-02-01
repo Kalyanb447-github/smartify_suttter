@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'button_dashboard.dart';
 import 'databasehelper/data_operation.dart';
@@ -39,18 +40,17 @@ class _SettingsPageState extends State<SettingsPage> {
                           });
                         },
                         onSaved: (value) {
-                            if (value.isEmpty) {
+                          if (value.isEmpty) {
                             setState(() {
-                          
-                            widget.switchCommendList[2] =value;
-                          });
+                              widget.switchCommendList[2] = value;
+                            });
                           }
                         },
                         keyboardType: TextInputType.emailAddress,
                         initialValue: widget.switchCommendList[2],
                         decoration: InputDecoration(
-                          labelText: 'Button 1',
-                          hintText: 'Button 1',
+                          labelText: 'Open',
+                          hintText: 'Open',
                           icon: Icon(
                             Icons.location_on,
                             color: Colors.blue[400],
@@ -66,24 +66,23 @@ class _SettingsPageState extends State<SettingsPage> {
                   margin: EdgeInsets.only(top: 10),
                   child: Center(
                     child: TextFormField(
-                           onChanged: (value) {
+                        onChanged: (value) {
                           setState(() {
                             widget.switchCommendList[3] = value;
                           });
                         },
                         onSaved: (value) {
-                            if (value.isEmpty) {
+                          if (value.isEmpty) {
                             setState(() {
-                          
-                            widget.switchCommendList[3] =value;
-                          });
+                              widget.switchCommendList[3] = value;
+                            });
                           }
                         },
                         keyboardType: TextInputType.emailAddress,
                         initialValue: widget.switchCommendList[3],
                         decoration: InputDecoration(
-                          labelText: 'Button 2',
-                          hintText: 'Button 2',
+                          labelText: 'Close',
+                          hintText: 'Close',
                           icon: Icon(
                             Icons.location_on,
                             color: Colors.blue[400],
@@ -98,24 +97,23 @@ class _SettingsPageState extends State<SettingsPage> {
                   margin: EdgeInsets.only(top: 10),
                   child: Center(
                     child: TextFormField(
-                       onChanged: (value) {
+                        onChanged: (value) {
                           setState(() {
                             widget.switchCommendList[4] = value;
                           });
                         },
                         onSaved: (value) {
-                            if (value.isEmpty) {
+                          if (value.isEmpty) {
                             setState(() {
-                          
-                            widget.switchCommendList[4] =value;
-                          });
+                              widget.switchCommendList[4] = value;
+                            });
                           }
                         },
                         keyboardType: TextInputType.emailAddress,
                         initialValue: widget.switchCommendList[4],
                         decoration: InputDecoration(
-                          labelText: 'Button 3',
-                          hintText: 'Button 3',
+                          labelText: 'Stop',
+                          hintText: 'Stop',
                           icon: Icon(
                             Icons.location_on,
                             color: Colors.blue[400],
@@ -130,24 +128,23 @@ class _SettingsPageState extends State<SettingsPage> {
                   margin: EdgeInsets.only(top: 10),
                   child: Center(
                     child: TextFormField(
-                           onChanged: (value) {
+                        onChanged: (value) {
                           setState(() {
                             widget.switchCommendList[5] = value;
                           });
                         },
                         onSaved: (value) {
-                            if (value.isEmpty) {
+                          if (value.isEmpty) {
                             setState(() {
-                          
-                            widget.switchCommendList[5] =value;
-                          });
+                              widget.switchCommendList[5] = value;
+                            });
                           }
                         },
                         keyboardType: TextInputType.emailAddress,
                         initialValue: widget.switchCommendList[5],
                         decoration: InputDecoration(
-                          labelText: 'Button 4',
-                          hintText: 'Button 4',
+                          labelText: 'Lock',
+                          hintText: 'Lock',
                           icon: Icon(
                             Icons.location_on,
                             color: Colors.blue[400],
@@ -172,15 +169,30 @@ class _SettingsPageState extends State<SettingsPage> {
                       AppUtil().storeAllButtonData(
                           data: widget.switchCommendList[0].toString() +
                               '\n' +
-                             widget.switchCommendList[1].toString() +
+                              widget.switchCommendList[1].toString() +
                               '\n' +
-                           widget.switchCommendList[2].toString() +
+                              widget.switchCommendList[2].toString() +
                               '\n' +
-                          widget.switchCommendList[3].toString() +
+                              widget.switchCommendList[3].toString() +
                               '\n' +
-                          widget.switchCommendList[4].toString() +
+                              widget.switchCommendList[4].toString() +
                               '\n' +
-                            widget.switchCommendList[5].toString() );
+                              widget.switchCommendList[5].toString());
+                      String temp_word =
+                          widget.switchCommendList[0].toString() +
+                              ',' +
+                              widget.switchCommendList[1].toString() +
+                              ',' +
+                              widget.switchCommendList[2].toString() +
+                              ',' +
+                              widget.switchCommendList[3].toString() +
+                              ',' +
+                              widget.switchCommendList[4].toString() +
+                              ',' +
+                              widget.switchCommendList[5].toString();
+
+                              Clipboard.setData( ClipboardData(text: temp_word));
+                     
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
                           // builder: (context) => ButtonDashboard(mainFileLocation:mainFileLocation),
