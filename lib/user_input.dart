@@ -17,7 +17,7 @@ class UserInput extends StatefulWidget {
 class _UserInputState extends State<UserInput> {
   TextEditingController user = TextEditingController();
   TextEditingController pass = TextEditingController();
-    final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   String folderName = 'Smartify';
   String fileName = 'smartify_Shutter.txt';
@@ -41,15 +41,23 @@ class _UserInputState extends State<UserInput> {
     final Directory _appDocDir = await getExternalStorageDirectory();
     final Directory _appFile =
         Directory('${_appDocDir.path}/$folderName/$fileName');
-    if (await File(_appFile.path).exists()  && location != '' && 
-          unique_number != '') {
+    if (await File(_appFile.path).exists()) {
+    
      
+     File ourTempFile = File(_appFile.path);
+      //text = await ourTempFile.readAsString();
+       List<String> switchCommendList = ['', '', '', '', '', ''];
+      switchCommendList = await ourTempFile.readAsLines();
+        unique_number = switchCommendList[1];
+      if (unique_number == '' || unique_number == null) {
+        return;
+      } else {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => ButtonDashboard(),
           ),
         );
-     
+      }
     }
   }
 
@@ -96,11 +104,6 @@ class _UserInputState extends State<UserInput> {
         builder: (context) => ButtonDashboard(),
       ),
     );
-    // Navigator.of(context).pushReplacement(
-    //   MaterialPageRoute(
-    //     builder: (context) => UserInput(),
-    //   ),
-    // );
   }
 
   //@@@@@@@@@@@@@@@@@@@@@@ using for txt and folsers
@@ -163,12 +166,12 @@ class _UserInputState extends State<UserInput> {
                   // initialValue: 'sad',
                   //obscureText: true,
                   //  controller: pass,
-                    validator: (value) {
-                          if (value.isEmpty) {
-                            return 'Please enter some text';
-                          }
-                          return null;
-                        },
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
                   onChanged: (value) {
                     setState(() {
                       unique_number = value;
@@ -200,11 +203,9 @@ class _UserInputState extends State<UserInput> {
                         // borderRadius: BorderRadius.circular(24),
                         ),
                     onPressed: () {
-                        if (_formKey.currentState.validate()) {
-                      setAllData();
+                      if (_formKey.currentState.validate()) {
+                        setAllData();
                       }
-
-                      
                     },
                     // padding: EdgeInsets.all(12),
                     color: Colors.lightBlue[200],
