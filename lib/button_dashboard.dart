@@ -20,9 +20,9 @@ class ButtonDashboard extends StatefulWidget {
 }
 
 List<CustomPopupMenu> choices = <CustomPopupMenu>[
-  CustomPopupMenu(title: 'logout', icon: Icons.home),
+//  CustomPopupMenu(title: 'logout', icon: Icons.home),
   CustomPopupMenu(title: 'Import', icon: Icons.bookmark),
-  CustomPopupMenu(title: 'Settings', icon: Icons.settings),
+ // CustomPopupMenu(title: 'Settings', icon: Icons.settings),
 ];
 
 class _ButtonDashboardState extends State<ButtonDashboard> {
@@ -145,19 +145,15 @@ final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
     setState(() {
       _selectedChoices = choice;
     });
-    if (_selectedChoices.title == 'logout') {
-      _disconnect();
-      // _removeSharedValue();
-    }
+    // if (_selectedChoices.title == 'logout') {
+    //   _disconnect();
+    //   // _removeSharedValue();
+    // }
        if (_selectedChoices.title == 'Import') {
     //  Future<ClipboardData>  data =  Clipboard.getData('text/plain');
     //      Future<ClipboardData>  data =  Clipboard.getData('text/plain');
           String data =await getClipBoardData();
           processTxtReceive(data);
-          
-              
-    
-    
       // _removeSharedValue();
     }
     if (_selectedChoices.title == 'Settings') {

@@ -15,50 +15,45 @@ class UserInput extends StatefulWidget {
 }
 
 class _UserInputState extends State<UserInput> {
-   TextEditingController user = TextEditingController();
+  TextEditingController user = TextEditingController();
   TextEditingController pass = TextEditingController();
-  String folderName='Smartify';
-  String fileName='smartify_Shutter.txt';
+    final _formKey = GlobalKey<FormState>();
+
+  String folderName = 'Smartify';
+  String fileName = 'smartify_Shutter.txt';
   String msg = '';
   final color = const Color(0xffb74093);
 
-  String location = null;
-  String unique_number = null;
+  String location = '';
+  String unique_number = '';
   String buttonStatus;
   File ourMainFile;
-    String text;
-    String mainFileLocation='';
+  String text;
+  String mainFileLocation = '';
   @override
   void initState() {
     super.initState();
-     checkValueExist();
+    checkValueExist();
     createDirectory(folderName);
-   
   }
 
   checkValueExist() async {
     final Directory _appDocDir = await getExternalStorageDirectory();
     final Directory _appFile =
         Directory('${_appDocDir.path}/$folderName/$fileName');
- if (await File(_appFile.path).exists()) {
- Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => ButtonDashboard(),
-      ),
-    );
- }
-  //  List<String> valueOfLile = await ourTempFile.readAsLines();
-    // text = await ourTempFile.readAsString();
-    // if (await ourTempFile.exists()) {
-    //   setState(() {
-    //     location = valueOfLile[0];
-    //     location = valueOfLile[1];
-    //     buttonStatus = valueOfLile[2];
-    //   });
-    // }
-   
+    if (await File(_appFile.path).exists()  && location != '' && 
+          unique_number != '') {
+     
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => ButtonDashboard(),
+          ),
+        );
+     
+    }
   }
-      createDirectory(String foldername) async {
+
+  createDirectory(String foldername) async {
     final Directory _appDocDir = await getExternalStorageDirectory();
     final Directory _appDocDirFolder =
         Directory('${_appDocDir.path}/$foldername/');
@@ -67,40 +62,38 @@ class _UserInputState extends State<UserInput> {
     }
   }
 
-
- 
-
   createFileFunction({String filename, String fileData}) async {
-     final Directory _appDocDir = await getExternalStorageDirectory();
+    final Directory _appDocDir = await getExternalStorageDirectory();
     ourMainFile = File("${_appDocDir.path}/$folderName/$filename");
-    mainFileLocation=ourMainFile.path;
+    mainFileLocation = ourMainFile.path;
     ourMainFile.writeAsString(fileData);
     // text = await ourMainFile.readAsString();
   }
 
   setAllData() async {
-    if (location != null && unique_number != null) {
+    if (location != null ||
+        location != '' && unique_number != null ||
+        unique_number != '') {
       createFileFunction(
           filename: fileName,
           fileData: location +
               '\n' +
               unique_number +
               '\n' +
-              '12345678901234567890' +
+              '101110101110101111001000' +
               '\n' +
-              '12345678901234567890' +
+              '101110101110101111000001' +
               '\n' +
-              '12345678901234567890' +
+              '101110101110101111000001' +
               '\n' +
-              '12345678901234567890' +
+              '101110101110101111000010' +
               '\n');
     }
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         // builder: (context) => ButtonDashboard(mainFileLocation:mainFileLocation),
-                builder: (context) => ButtonDashboard(),
-
+        builder: (context) => ButtonDashboard(),
       ),
     );
     // Navigator.of(context).pushReplacement(
@@ -112,13 +105,12 @@ class _UserInputState extends State<UserInput> {
 
   //@@@@@@@@@@@@@@@@@@@@@@ using for txt and folsers
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Form(
+        key: _formKey,
         child: Container(
           width: double.infinity,
           child: Center(
@@ -132,6 +124,12 @@ class _UserInputState extends State<UserInput> {
                   margin: EdgeInsets.only(top: 100),
                   child: Center(
                     child: TextFormField(
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter some text';
+                          }
+                          return null;
+                        },
                         onChanged: (value) {
                           setState(() {
                             location = value;
@@ -165,6 +163,12 @@ class _UserInputState extends State<UserInput> {
                   // initialValue: 'sad',
                   //obscureText: true,
                   //  controller: pass,
+                    validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter some text';
+                          }
+                          return null;
+                        },
                   onChanged: (value) {
                     setState(() {
                       unique_number = value;
@@ -196,7 +200,11 @@ class _UserInputState extends State<UserInput> {
                         // borderRadius: BorderRadius.circular(24),
                         ),
                     onPressed: () {
+                        if (_formKey.currentState.validate()) {
                       setAllData();
+                      }
+
+                      
                     },
                     // padding: EdgeInsets.all(12),
                     color: Colors.lightBlue[200],
@@ -211,148 +219,4 @@ class _UserInputState extends State<UserInput> {
       ),
     );
   }
-}
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-// class CreateDirectory extends StatefulWidget {
-//   @override
-//   _CreateDirectoryState createState() => _CreateDirectoryState();
-// }
-
-// class _CreateDirectoryState extends State<CreateDirectory> {
-//   String rootDirectory;
-//   static Future<String> createFolderInAppDocDir(String folderName) async {
-//     //Get this App Document Directory
-//     final Directory _appDocDir = await getExternalStorageDirectory();
-//     //App Document Directory + folder name
-//     final Directory _appDocDirFolder =
-//         Directory('${_appDocDir.path}/$folderName/');
-//     // rootDirectory= _appDocDirFolder.path;
-//     if (await _appDocDirFolder.exists()) {
-//       //if folder already exists return path
-//       return _appDocDirFolder.path;
-//     } else {
-//       //if folder not exists create folder and then return its path
-//       final Directory _appDocDirNewFolder =
-//           await _appDocDirFolder.create(recursive: true);
-//       return _appDocDirNewFolder.path;
-//     }
-//   }
-
-//   createDirecoreyFunction(String foldername) async {
-//     String folderInAppDocDir = await createFolderInAppDocDir(foldername);
-//   }
-
-//   String testContent = 'press the button below';
-//   _buttonPressed() async {
-//     //  Directo
-//   }
-//   String text = '';
-
-//   createFileFunction({String filename, String fileData}) async {
-//     //  final directory = await getApplicationDocumentsDirectory();
-//     final directory = await getExternalStorageDirectory();
-
-//     // final directory = await getExternalStorageDirectory();
-//     final appDocDir = directory.path;
-//     File ourFile = File("$appDocDir/Smartify/$filename");
-
-//     if (await ourFile.exists()) {
-//       //if folder already exists return path
-//       // return _appDocDirFolder.path;
-//     } else {
-//       //if folder not exists create folder and then return its path
-//       // final Directory _appDocDirNewFolder =
-//       //     await _appDocDirFolder.create(recursive: true);
-//       // return _appDocDirNewFolder.path;
-//     }
-//     ourFile.writeAsString(fileData);
-//     ourFile.openWrite();
-//     print(ourFile.path);
-//     text = await ourFile.readAsString();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//         body: Container(
-//       child: Center(
-//         child: Column(
-//           children: <Widget>[
-//             SizedBox(height: 150),
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//               children: <Widget>[
-//                 Text(text),
-//                 RaisedButton(
-//                   onPressed: () {
-//                     createFileFunction(filename: "sample.txt", fileData: '');
-//                   },
-//                   child: Text('click'),
-//                 ),
-//               ],
-//             ),
-//             SizedBox(height: 50),
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//               children: <Widget>[
-//                 Text(text),
-//                 RaisedButton(
-//                   onPressed: () {
-//                     createDirecoreyFunction("Smartify");
-//                   },
-//                   child: Text('create new folder'),
-//                 ),
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//     ));
-//   }
-// }
-
-// class AppUtil {
-//   static Future<String> createFolderInAppDocDir(String folderName) async {
-//     //Get this App Document Directory
-//     final Directory _appDocDir = await getExternalStorageDirectory();
-//     //App Document Directory + folder name
-//     final Directory _appDocDirFolder =
-//         Directory('${_appDocDir.path}/$folderName/');
-//     //rootDirectory= _appDocDirFolder.path;
-//     if (await _appDocDirFolder.exists()) {
-//       //if folder already exists return path
-//       return _appDocDirFolder.path;
-//     } else {
-//       //if folder not exists create folder and then return its path
-//       final Directory _appDocDirNewFolder =
-//           await _appDocDirFolder.create(recursive: true);
-//       return _appDocDirNewFolder.path;
-//     }
-//   }
-// }
-
-class Lager {
-  static final _lock = Lock(); // uses the “synchronized” package
-  static File _logFile;
-
-  static Future initializeLogging(String canonicalLogFileName) async {
-    _logFile = _createLogFile(canonicalLogFileName);
-    final text = '${new DateTime.now()}: LOGGING STARTED\n';
-
-    /// per its documentation, `writeAsString` “Opens the file, writes
-    /// the string in the given encoding, and closes the file”
-    return _logFile.writeAsString(text, mode: FileMode.write, flush: true);
-  }
-
-  static Future log(String s) async {
-    final text = '${new DateTime.now()}: $s\n';
-    return _lock.synchronized(() async {
-      await _logFile.writeAsString(text, mode: FileMode.append, flush: true);
-    });
-  }
-
-  static File _createLogFile(canonicalLogFileName) =>
-      File(canonicalLogFileName);
 }
